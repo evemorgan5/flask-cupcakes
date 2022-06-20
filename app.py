@@ -2,6 +2,7 @@
 
 from flask import Flask, jsonify, request
 from flask_debugtoolbar import DebugToolbarExtension
+from sqlalchemy import delete
 
 from models import db, connect_db, Cupcake
 
@@ -53,7 +54,6 @@ def create_cupcake():
     rating = request.json["rating"]
     image = request.json["image"] or None
 
-
     new_cupcake = Cupcake(flavor=flavor, size=size, rating=rating, image=image)
 
     db.session.add(new_cupcake)
@@ -64,3 +64,42 @@ def create_cupcake():
     # Return w/status code 201 --- return tuple (json, status)
     return (jsonify(cupcake=serialized), 201)
 
+
+@app.patch("/api/cupcakes/<int:cupcake_id>")
+def update_cupcake(cupcake_id):
+    """Update cupcake from JSON data & return it.
+
+    Returns JSON {'cupcake': {id, flavor, size, rating, image}
+    """
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    breakpoint()
+
+    data_to_update = request.json
+
+    cupcake.flavor = request.json.get("flavor") or cupcake.flavor
+    cupcake.size = request.json.get("size") or cupcake.size
+    cupcake.rating = request.json.get("rating") or cupcake.rating
+    cupcake.image = request.json.get("image") or cupcake.image
+
+    db.session.commit()
+
+    serialized = cupcake.serialize()
+
+    return jsonify(cupcake=serialized)
+
+
+@app.delete("/api/cupcakes/<int:cupcake_id>")
+def delete_cupcake(cupcake_id):
+    """Delete desired cupcake from database cupcakes.
+
+    Returns JSON {'deleted': [cupcake_id]}
+    """
+
+    cupcake = Cupcake.query.get_or_404(cupcake_id)
+
+    db.session.delete(cupcake)
+    db.session.commit()
+
+    return jsonify({'deleted': [cupcake_id]})
