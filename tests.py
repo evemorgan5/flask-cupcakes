@@ -72,7 +72,7 @@ class CupcakeViewsTestCase(TestCase):
 
     def test_get_cupcake(self):
         with app.test_client() as client:
-            """ Test that we get specific cupcake in our database"""
+            """ Test that we get a specific cupcake in our database"""
 
             url = f"/api/cupcakes/{self.cupcake.id}"
             resp = client.get(url)
@@ -117,7 +117,7 @@ class CupcakeViewsTestCase(TestCase):
 
     def test_update_cupcake(self):
         with app.test_client() as client:
-            """ Test that we get update a cupcake's info in our database"""
+            """ Test that we can update a cupcake's info in our database"""
 
             new_cupcake_resp = client.post(
                 "/api/cupcakes", json=CUPCAKE_DATA_2)
@@ -135,7 +135,7 @@ class CupcakeViewsTestCase(TestCase):
 
             self.assertEqual(updated_data, {
                 "cupcake": {
-                    "id": new_cupcake_data['cupcake']['id'],
+                    "id": id,
                     "flavor": "TestFlavor2",
                     "size": "test-changed-size",
                     "rating": 10,
@@ -147,7 +147,7 @@ class CupcakeViewsTestCase(TestCase):
 
     def test_delete_cupcake(self):
         with app.test_client() as client:
-            """ Test that we get delete a cupcake in our database"""
+            """ Test that we can delete a cupcake in our database"""
 
             new_cupcake_resp = client.post(
                 "/api/cupcakes", json=CUPCAKE_DATA_2)
@@ -164,3 +164,12 @@ class CupcakeViewsTestCase(TestCase):
             })
 
             self.assertEqual(Cupcake.query.count(), 1)
+
+    def test_404_on_delete(self):
+        with app.test_client() as client:
+            """ Test that we get 404 if cupcake id does not exist"""
+
+            url = "/api/cupcakes/NOTVALIDINT"
+            deleted_resp = client.delete(url)
+
+            self.assertEqual(deleted_resp.status_code, 404)

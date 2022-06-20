@@ -74,14 +74,10 @@ def update_cupcake(cupcake_id):
 
     cupcake = Cupcake.query.get_or_404(cupcake_id)
 
-    breakpoint()
-
-    data_to_update = request.json
-
-    cupcake.flavor = request.json.get("flavor") or cupcake.flavor
-    cupcake.size = request.json.get("size") or cupcake.size
-    cupcake.rating = request.json.get("rating") or cupcake.rating
-    cupcake.image = request.json.get("image") or cupcake.image
+    cupcake.flavor = request.json.get("flavor", cupcake.flavor)
+    cupcake.size = request.json.get("size", cupcake.size)
+    cupcake.rating = request.json.get("rating", cupcake.rating)
+    cupcake.image = request.json.get("image", cupcake.image)
 
     db.session.commit()
 
