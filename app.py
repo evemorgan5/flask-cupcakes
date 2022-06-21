@@ -1,6 +1,6 @@
 """Flask app for Cupcakes"""
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy import delete
 
@@ -21,6 +21,12 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 connect_db(app)
 db.create_all()
 
+# not typical for api
+@app.get("/")
+def display_html():
+    """Display html page with cupcakes"""
+    return render_template("index.html")
+
 
 @app.get("/api/cupcakes")
 def get_cupcakes():
@@ -32,6 +38,8 @@ def get_cupcakes():
     return jsonify(cupcakes=serialized)
 
 
+
+
 @app.get("/api/cupcakes/<int:cupcake_id>")
 def list_single_cupcake(cupcake_id):
     """Return JSON {'cupcake': {id, flavor, size, rating, image}}"""
@@ -40,6 +48,7 @@ def list_single_cupcake(cupcake_id):
     serialized = cupcake.serialize()
 
     return jsonify(cupcake=serialized)
+
 
 
 @app.post("/api/cupcakes")
@@ -99,3 +108,4 @@ def delete_cupcake(cupcake_id):
     db.session.commit()
 
     return jsonify({'deleted': [cupcake_id]})
+
